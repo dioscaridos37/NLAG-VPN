@@ -19,12 +19,10 @@ jobs:
             unzip -o NLAG-VPN.zip
             
             if [ -d NLAG-VPN ]; then
-              # Copy everything except .github (we already have the workflow)
               shopt -s dotglob
               for item in NLAG-VPN/*; do
                 name=$(basename "$item")
                 if [ "$name" = ".github" ]; then
-                  # merge workflows if needed
                   mkdir -p .github/workflows
                   cp -r NLAG-VPN/.github/workflows/* .github/workflows/ 2>/dev/null || true
                 else
@@ -46,6 +44,12 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+
+      - name: Accept Android licenses
+        run: |
+          yes | sdkmanager --licenses || true
 
       - name: Generate Gradle Wrapper
         run: |
