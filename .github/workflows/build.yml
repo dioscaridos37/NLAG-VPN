@@ -17,12 +17,25 @@ jobs:
           if [ -f NLAG-VPN.zip ]; then
             echo "Found NLAG-VPN.zip — unpacking..."
             unzip -o NLAG-VPN.zip
+            
             if [ -d NLAG-VPN ]; then
+              # Copy everything except .github (we already have the workflow)
               shopt -s dotglob
-              mv NLAG-VPN/* .
-              rmdir NLAG-VPN 2>/dev/null || true
+              for item in NLAG-VPN/*; do
+                name=$(basename "$item")
+                if [ "$name" = ".github" ]; then
+                  # merge workflows if needed
+                  mkdir -p .github/workflows
+                  cp -r NLAG-VPN/.github/workflows/* .github/workflows/ 2>/dev/null || true
+                else
+                  rm -rf "./$name"
+                  mv "$item" .
+                fi
+              done
+              rm -rf NLAG-VPN
             fi
           fi
+          echo "=== Root contents ==="
           ls -la
 
       - name: Set up JDK 17
